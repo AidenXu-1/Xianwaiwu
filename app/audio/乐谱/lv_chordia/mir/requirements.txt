@@ -1,0 +1,2 @@
+# This vendored subpackage has no separate installation.
+# Install lv-chordia from the repository root; pyproject.toml owns runtime dependencies.

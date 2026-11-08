@@ -1,0 +1,39 @@
+{
+  "htdemucs": {
+    "filename": "955717e8-8726e21a.th",
+    "bytes": 84141911,
+    "sha256": "8726e21a993978c7ba086d3872e7608d7d5bfca646ca4aca459ffda844faa8b4",
+    "url": "https://dl.fbaipublicfiles.com/demucs/hybrid_transformer/955717e8-8726e21a.th"
+  },
+  "htdemucs_6s": {
+    "filename": "5c90dfd2-34c22ccb.th",
+    "bytes": 54996327,
+    "sha256": "34c22ccb381c6f9fdbf324f04e1e2fe21aaaf293f5ded163a162697ff9a02ddd",
+    "url": "https://dl.fbaipublicfiles.com/demucs/hybrid_transformer/5c90dfd2-34c22ccb.th"
+  },
+  "uvr-inst-hq3": {
+    "filename": "UVR-MDX-NET-Inst_HQ_3.onnx",
+    "bytes": 66759214,
+    "sha256": "317554b07fe1ea5279a77f2b1520a41ea4b93432560c4ffd08792c30fddf9adc",
+    "url": "https://huggingface.co/lissette/uvr/resolve/44e73ee/MDX-Net/UVR-MDX-NET-Inst_HQ_3.onnx"
+  },
+  "uvr-kara2": {
+    "filename": "UVR_MDXNET_KARA_2.onnx",
+    "bytes": 52786726,
+    "sha256": "bf32e15105a09c0f7dddd2b67346146334d6f3ecb399ed7638eba2ab07cbf5f4",
+    "url": "https://huggingface.co/lissette/uvr/resolve/44e73ee/MDX-Net/UVR_MDXNET_KARA_2.onnx",
+    "optional": true
+  },
+  "bs-karaoke-frazer-becruily": {
+    "filename": "bs_roformer_karaoke_frazer_becruily.ckpt",
+    "sha256": "eb90ee24c1154d83fbcfd27e96182f19e061557cc6e4746953125e08c29389f9",
+    "bytes": 204436907,
+    "url": "https://huggingface.co/becruily/bs-roformer-karaoke/resolve/0d66103c6b79c0dd0e9efd38ca70db7042f6f695/bs_roformer_karaoke_frazer_becruily.ckpt"
+  },
+  "bs-karaoke-config": {
+    "filename": "config_karaoke_frazer_becruily.yaml",
+    "sha256": "1d3b58b473025183d0d3c91e7a444cb5f1418d9f34e8f46b8d2fb10d2cc8ab34",
+    "bytes": 1903,
+    "url": "https://huggingface.co/becruily/bs-roformer-karaoke/resolve/0d66103c6b79c0dd0e9efd38ca70db7042f6f695/config_karaoke_frazer_becruily.yaml"
+  }
+}

@@ -1,0 +1,26 @@
+name: 问题反馈
+description: 帮助复现弦外屋的实际使用问题
+body:
+  - type: input
+    id: system
+    attributes:
+      label: macOS 版本与芯片型号
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 弦外屋版本与安装方式
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 操作步骤、期望结果与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: message
+    attributes:
+      label: 错误提示或截图
+      description: 通常无需上传完整歌曲、个人项目资料或任何凭据。

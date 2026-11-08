@@ -1,0 +1,111 @@
+"""Load pretrained network state and run inference on the selected device.
+
+Bundled checkpoints resolve through the same weights directory as session
+inspection. Custom load paths remain relative to the project root.
+
+Reads: mir/common.py, torch, numpy
+"""
+
+import torch.nn as nn
+import torch.nn.functional as F
+import torch
+from ..common import WORKING_PATH
+import os
+import numpy as np
+from typing import Optional
+
+class NetworkBehavior(nn.Module):
+
+    def __init__(self, use_gpu: Optional[bool]=None, device=None):
+        super().__init__()
+        # use_gpu=None (the default) preserves the original auto-detect
+        # behavior exactly; callers that want an explicit override (e.g. to
+        # force CPU on a CUDA-capable machine) pass True/False.
+        self.use_gpu=torch.cuda.device_count()>0 if use_gpu is None else use_gpu
+        self.device = torch.device('cuda' if self.use_gpu else 'cpu') if device is None else torch.device(device)
+        self.use_data_parallel=False
+
+    def forward(self, *args):
+        raise NotImplementedError()
+
+    def init_settings(self):
+        self.to(self.device)
+        self.eval()
+        if(self.use_data_parallel):
+            self.parallel_net=[nn.DataParallel(self)]
+
+    def feed(self, *args):
+        if(self.use_data_parallel):
+            return self.parallel_net[0](*args)
+        else:
+            return self(*args)
+
+    def inference(self, *args):
+        raise NotImplementedError()
+
+class NetworkInterface:
+
+    def __init__(self, net, save_name, load_checkpoint=False, load_path='weights'):
+        from ..common import WEIGHTS_PATH
+        self.net=net
+        if(not isinstance(self.net,NetworkBehavior)):
+            raise Exception('Invalid network type')
+        if('(p)' in save_name):
+            self.net.use_data_parallel=True
+        self.net.init_settings()
+        self.save_name=save_name
+        # Keep the former default spelling as an alias for advanced callers.
+        self.base_path = WEIGHTS_PATH if load_path in ('weights', 'cache_data') else os.path.join(WORKING_PATH, load_path)
+        save_path=os.path.join(self.base_path,'%s.sdict'%save_name)
+        cp_save_path=os.path.join(self.base_path,'%s.cp.sdict'%save_name)
+        self.finalized=False
+        self.counter=0
+        self.best_val_loss=np.inf
+        self.best_epoch_dist=0
+        if(os.path.exists(save_path)):
+            state_dict=torch.load(save_path,map_location=self.net.device)
+            # The following codes are for torch 4.0 compatibility
+            # new_state_dict={}
+            # for key in state_dict['net']:
+            #     if('num_batches_tracked' not in key):
+            #         new_state_dict[key]=state_dict['net'][key]
+            # self.net.load_state_dict(new_state_dict)
+            self.net.load_state_dict(state_dict['net'])
+            self.counter=state_dict['counter']
+            try:
+                self.best_epoch_dist=state_dict['best_epoch_dist']
+                self.best_val_loss=state_dict['best_val_loss']
+            except:
+                pass
+            self.finalized=True
+        elif(load_checkpoint and os.path.exists(cp_save_path)):
+            state_dict=torch.load(cp_save_path,map_location=self.net.device)
+            # The following codes are for torch 4.0 compatibility
+            # new_state_dict={}
+            # for key in state_dict['net']:
+            #     if('num_batches_tracked' not in key):
+            #         new_state_dict[key]=state_dict['net'][key]
+            # self.net.load_state_dict(new_state_dict)
+            self.net.load_state_dict(state_dict['net'])
+            self.counter=state_dict['counter']
+            try:
+                self.best_epoch_dist=state_dict['best_epoch_dist']
+                self.best_val_loss=state_dict['best_val_loss']
+            except:
+                pass
+
+    def inference(self, *args,**kwargs):
+        self.net.init_settings()
+        inputs=[torch.tensor(arg,dtype=torch.float if arg.dtype in [np.float16,np.float32,np.float64] else torch.long)
+                for arg in args]
+        inputs=[input.to(self.net.device) for input in inputs]
+        with torch.no_grad():
+            return self.net.inference(*inputs,**kwargs)
+
+    def inference_function(self,function,*args,**kwargs):
+        self.net.init_settings()
+        inputs=[torch.tensor(arg,dtype=torch.float if arg.dtype in [np.float16,np.float32,np.float64] else torch.long)
+                for arg in args]
+        inputs=[input.to(self.net.device) for input in inputs]
+        with torch.no_grad():
+            return self.net.__class__.__dict__[function](self.net,*inputs,**kwargs)
