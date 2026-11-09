@@ -2,13 +2,13 @@
 
 当前版本 1.3.8，Apple 芯片 Mac，安装包最低 macOS 26.2。内置加速组件的实际最低系统为 26.2，客户端源码的 14.0 编译目标不代表整套依赖兼容 14.0。Intel Mac 与其他电脑的实际运行尚未逐一验收。
 
-## 安装 Mac 自用版
+## 安装 Mac 版
 
 1. 从[版本页](https://github.com/AidenXu-1/Xianwaiwu/releases/latest)下载 Xianwaiwu-1.3.8-arm64.dmg。
 2. 打开 DMG，将“弦外屋”拖到 Applications（应用程序）。
 3. 从应用程序打开弦外屋。安装版自带运行工具，无需安装 Python、Homebrew、Word 或配置 API。
 
-这是商店外自用版本，未使用 Apple 分发证书，也未作公证。若首次打开被系统拦住，可按 [Apple 官方说明](https://support.apple.com/102445)在“系统设置 → 隐私与安全性”中选择“仍要打开”。App Store 不参与本版本安装。
+这是商店外发布的版本，未使用 Apple 分发证书，也未作公证。若首次打开被系统拦住，可按 [Apple 官方说明](https://support.apple.com/102445)在“系统设置 → 隐私与安全性”中选择“仍要打开”。App Store 不参与本版本安装。
 
 ## 首次模型准备
 
