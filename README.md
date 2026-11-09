@@ -8,7 +8,7 @@
 
 **Apple 芯片 Mac · macOS 26.2+ · 1.3.8 · MIT**
 
-[下载 Mac 自用版](https://github.com/AidenXu-1/Xianwaiwu/releases/latest) · [查看源码](https://github.com/AidenXu-1/Xianwaiwu)
+[下载最新版](https://github.com/AidenXu-1/Xianwaiwu/releases/latest) · [查看源码](https://github.com/AidenXu-1/Xianwaiwu)
 
 弦外屋把听歌、拆轨和跟弹放在同一个工作区。想听清一段吉他，可以先独奏吉他；想练和声，可以对照主唱、和声和伴奏；想跟着弹唱，可以切进乐谱页，慢下来，循环这一句。
 
