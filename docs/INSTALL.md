@@ -1,68 +1,55 @@
 # 安装与源码构建
 
-当前版本 1.3.7，面向 Apple 芯片 Mac。本仓库提供源码，App 需要与本项目的音频环境一起使用；当前没有经过新电脑验收的独立安装包。
+当前版本 1.3.8，Apple 芯片 Mac，安装包最低 macOS 26.2。内置加速组件的实际最低系统为 26.2，客户端源码的 14.0 编译目标不代表整套依赖兼容 14.0。Intel Mac 与其他电脑的实际运行尚未逐一验收。
 
-App 声明的运行下限为 macOS 14，但本轮只验证开发者当前的 Apple 芯片 Mac，不表示所有旧系统与依赖组合都已经验证。
+## 安装 Mac 自用版
 
-## 准备工具
+1. 从[版本页](https://github.com/AidenXu-1/Xianwaiwu/releases/latest)下载 Xianwaiwu-1.3.8-arm64.dmg。
+2. 打开 DMG，将“弦外屋”拖到 Applications（应用程序）。
+3. 从应用程序打开弦外屋。安装版自带运行工具，无需安装 Python、Homebrew、Word 或配置 API。
 
-- 完整 Xcode 与其命令行工具。构建会处理 `.icon` 图标文档，需要支持该格式的 Xcode；其他 Xcode 版本尚未逐一验证。
-- Python 3，用于生成 Xcode 工程。
-- uv，用于准备固定版本的音频环境。
-- FFmpeg 与 FFprobe。Apple 芯片 Mac 默认从 `/opt/homebrew/bin` 查找。
+这是商店外自用版本，未使用 Apple 分发证书，也未作公证。若首次打开被系统拦住，可按 [Apple 官方说明](https://support.apple.com/102445)在“系统设置 → 隐私与安全性”中选择“仍要打开”。App Store 不参与本版本安装。
 
-已有 Homebrew 的机器可以安装音频工具：
+## 首次模型准备
+
+首次点击分离或生成乐谱时，界面显示下载和校验进度；准备完成后继续处理。只下载对应功能所需文件，校验固定大小和 SHA-256。网络中断、校验失败或取消保留原有项目与已完成模型，联网后重试即可。
+
+| 功能 | 首次模型下载量 | 复用关系 |
+| --- | --- | --- |
+| 人声与伴奏 | 约 67 MB | 三轨也使用这一份 |
+| 主唱、和声、伴奏 | 约 271 MB | 已有双轨模型时只新增约 204 MB |
+| 音乐六轨 | 约 55 MB | 按需单独准备 |
+| 和弦弹唱谱 | 约 29 MB | 不安装歌词识别模型 |
+
+以上常用模型全部准备后合计约 355 MB，不随歌曲数量重复下载。安装包与运行工具另占空间；歌曲与分轨大小取决于时长和结果数量。模型来自固定公开来源，原音频不上传。来源与许可分别见[第三方声明](../THIRD_PARTY_NOTICES.md)。
+
+## 数据与更新
+
+日常项目、歌词、乐谱和试听状态位于 ~/Library/Application Support/Xianwaiwu，安装版模型位于其中的 Models/。导出位置自行选择。更新时退出 App，再用新版替换应用程序中的 App，保留资料目录。App 搬移或更新不需要重新复制开发项目。
+
+原始歌曲不会改写，移动后可重新定位。移除 App 不会自动清理资料库与模型。
+
+## 从源码构建
+
+开发者需要完整 Xcode、Python 3、uv、FFmpeg 与 FFprobe。图标构建需支持 .icon 文档的 Xcode，其他 Xcode 和系统组合尚未逐一验证。
+
+已有 Homebrew 的机器可运行：
 
 ```sh
 brew install uv ffmpeg
-```
-
-工具的官方说明：[Xcode](https://developer.apple.com/xcode/)、[uv](https://docs.astral.sh/uv/getting-started/installation/)、[FFmpeg](https://ffmpeg.org/download.html)。
-
-## 获取源码
-
-下载仓库 ZIP 并解压，或执行：
-
-```sh
 git clone https://github.com/AidenXu-1/Xianwaiwu.git
 cd Xianwaiwu
-```
-
-下面的命令均在项目根目录执行。
-
-## 准备音频环境与模型
-
-```sh
 bash 'app/audio/引擎/setup-engine.command'
 python3 'app/audio/乐谱/install_models.py'
-```
-
-第一个命令创建项目自己的 Python 3.11 环境，安装固定依赖并下载分离模型；第二个命令下载和弦识别模型。安装过程需要访问依赖平台、GitHub 和模型来源站点。
-
-默认模型合计约 440 MB；可选的旧版兼容模型另计。依赖环境需要额外磁盘空间。下载时会校验文件大小及 SHA-256，已有且通过校验的文件会复用。
-
-模型权重的来源许可独立适用，见[第三方声明](../THIRD_PARTY_NOTICES.md)。源码仓库不捆绑这些权重。
-
-## 构建与打开
-
-```sh
 python3 'app/audio/样本/create_demo.py'
 bash 'app/macos/构建原生版.command'
 open 'releases/弦外屋.app'
 ```
 
-共享构建方案为 `Xianwaiwu`。示例生成脚本只在示例缺失时创建一段 12 秒合成练习音频，保留已有文件。构建脚本会生成原生工程并把 App 放进 `releases/`。保留项目目录结构，App 会从上层目录寻找本地引擎与指法数据；当前不支持只把 App 拖到其他位置后脱离项目运行。
+源码开发模式使用项目目录内的 Python 环境和模型、外部 FFmpeg。它与独立安装版的路径分别处理。安装脚本默认下载模型约 440 MB，包含兼容路径模型；已有且校验通过的文件复用。示例生成器只在缺失时生成 12 秒原创合成音频，不覆盖已有文件。
 
-构建不包含正式开发者签名和公证。当前说明针对源码本机构建，不作为已签名安装包的安装说明。
+独立安装包的可重建步骤见[打包说明](PACKAGING.md)。检查入口见[本机检查](../app/macos/测试/README.md)。
 
-## 第一次操作
+## 验证边界
 
-打开后拖入一首本地歌曲，先选择几秒至几十秒进行分离。试听完成后，再决定处理整首。点击歌名旁「歌词」导入自带有效时间的文件；点击「乐谱」生成可校正的和弦参考谱。
-
-## 数据放在哪里
-
-- 日常资料库：`~/Library/Application Support/Xianwaiwu`。
-- 模型与运行环境：项目内 `app/audio/引擎/` 和 `app/audio/乐谱/weights/`。
-- 用户导出：保存时自行选择的位置。
-
-原始歌曲不会改写。请保留原文件，移动后可在 App 中重新定位。需要开发验证时使用独立 `XIANWAIWU_DATA`，不要将日常资料库作为测试目录。
+已执行的搬移、只读安装盘与开发目录隔离结果见版本准备记录。本机模拟隔离不能替代另一台 Mac 的实际验收；未声称 Apple 公证或 App Store 审核通过。

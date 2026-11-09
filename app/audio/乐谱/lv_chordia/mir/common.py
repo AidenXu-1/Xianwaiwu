@@ -22,6 +22,6 @@ def _resource_path(directory):
 
 
 # Xianwaiwu: always load the local artifacts verified by score_job.py.
-WEIGHTS_PATH = os.path.join(WORKING_PATH, 'weights')
+WEIGHTS_PATH = os.environ.get('XIANWAIWU_SCORE_WEIGHTS') or os.path.join(WORKING_PATH, 'weights')
 # Preserve the vendored toolkit's cache location; it contains no model weights.
 CACHE_DATA_PATH = _resource_path('cache_data')

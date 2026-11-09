@@ -19,6 +19,12 @@ import SwiftUI
                 Button("打开音频…", action: work.chooseInput).keyboardShortcut("o").disabled(work.busy || work.importing)
                 Button("所有项目", action: work.showHome).keyboardShortcut("1")
             }
+            CommandGroup(after: .appInfo) {
+                Button("开源许可与模型来源") {
+                    let notices = Project.root.appendingPathComponent("THIRD_PARTY_NOTICES.md")
+                    NSWorkspace.shared.open(notices)
+                }
+            }
             CommandGroup(replacing: .appSettings) { }
             CommandMenu("乐谱") {
                 Button("打开弹唱谱", action: work.openScore)

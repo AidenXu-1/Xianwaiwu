@@ -30,3 +30,15 @@
 FFmpeg/FFprobe 由用户另行安装。FFmpeg 的许可取决于实际构建选项；本仓库不附带其可执行文件。详见 [FFmpeg 许可说明](https://ffmpeg.org/legal.html)。
 
 用户应自行确认所导入音频、歌词和后续导出内容的使用范围。本项目的代码授权不替代歌曲、录音、歌词或训练素材的权利。
+
+## 商店外 App 安装包
+
+自有代码采用 [MIT](LICENSE)，第三方组件分别适用各自许可。1.3.8 的 Apple 芯片安装包内置 CPython 3.11.15、固定版本音频依赖，以及从源码构建的 FFmpeg 9.0.2 / LAME 3.100。FFmpeg 仅启用音频功能，没有启用 GPL 或非自由构建选项，保留 FFmpeg 与 LAME 各自 LGPL 许可。上方关于自行安装工具的说明针对源码构建；安装包用户无需安装 Python、Homebrew 或填写 API。
+
+Python 包保留原 dist-info 元信息、包内许可与版权声明；额外的 Python 发行与音频工具许可位于 App 的 Contents/Resources/Runtime/ThirdPartyLicenses/。App 菜单“开源许可与模型来源”可打开本说明。自有代码的 MIT 不替代第三方许可。
+
+同一版本页将提供 Xianwaiwu-runtime-sources.zip，包含音频工具和相关运行组件源码、构建脚本与固定来源记录。Python 构建来自 python-build-standalone 20260414，其源码及许可出处也随附。可按原许可修改与替换第三方组件，并为调试这些修改进行必要检查；App 没有阻止替换的访问控制。构建入口为 tools/build-audio-tools.py 和 tools/package-macos.py。
+
+安装包不含模型权重，首次使用时从固定来源下载并核验 SHA-256，保存到用户资料目录 Models/，后续复用。失败或取消保留已有内容，不在 App 内写模型，原音频不上传。
+
+当前安装包按内置组件实际要求标注 macOS 26.2+。这是商店外自用的未公证版本，使用本机签名核对包内文件完整性，没有 Apple 分发证书。首次打开可能需要按 [Apple 官方说明](https://support.apple.com/102445) 在系统设置中允许。

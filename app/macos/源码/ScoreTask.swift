@@ -43,12 +43,12 @@ final class ScoreTask: ObservableObject {
         do { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false) }
         catch { report("无法准备临时空间，请检查磁盘后重试。", projectID: project.id); return }
         token = id
-        proc.executableURL = Project.engine.appendingPathComponent(".venv/bin/python")
+        proc.executableURL = Project.python
         proc.arguments = [Project.root.appendingPathComponent("app/audio/乐谱/score_job.py").path,
                           "--device", preferCPU ? "cpu" : "auto", "--work-directory", directory.path,
                           "--input", input.path, "--start", String(range.lowerBound),
                           "--end", String(range.upperBound), "--source-sha256", project.source.sha256]
-        var env = ProcessInfo.processInfo.environment
+        var env = Project.environment
         env["PYTHONDONTWRITEBYTECODE"] = "1"
         env["PYTHONUNBUFFERED"] = "1"; env["OMP_NUM_THREADS"] = "2"
         env["NUMBA_CACHE_DIR"] = NSTemporaryDirectory() + "xianwaiwu-score-numba"

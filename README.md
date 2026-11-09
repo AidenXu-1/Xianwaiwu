@@ -6,11 +6,13 @@
   <p><a href="docs/INSTALL.md">准备与安装</a> · <a href="docs/USAGE.md">使用说明</a> · <a href="https://github.com/AidenXu-1/Xianwaiwu/issues">反馈问题</a></p>
 </div>
 
-**Apple 芯片 Mac · 本机开发预览 · 1.3.7**
+**Apple 芯片 Mac · macOS 26.2+ · 1.3.8 · MIT**
+
+[下载 Mac 自用版](https://github.com/AidenXu-1/Xianwaiwu/releases/latest) · [查看源码](https://github.com/AidenXu-1/Xianwaiwu)
 
 弦外屋把听歌、拆轨和跟弹放在同一个工作区。想听清一段吉他，可以先独奏吉他；想练和声，可以对照主唱、和声和伴奏；想跟着弹唱，可以切进乐谱页，慢下来，循环这一句。
 
-当前提供源码和构建方式。App 依赖项目内的音频环境与模型，首次准备需要联网，日常处理在本机进行。独立安装包、签名公证和其他电脑的首次安装仍需单独验证。请先阅读[安装条件](docs/INSTALL.md)。
+提供 MIT 源码与商店外 Mac 安装包。App 自带运行工具，拖入“应用程序”后即可打开，无需另装 Python、Homebrew 或填写 API。首次使用分离或乐谱时自动下载所需模型，之后可离线处理。未作 Apple 公证，首次打开可能需要在系统设置中允许。请先阅读[安装说明](docs/INSTALL.md)。
 
 ## 听清每一条音轨
 
@@ -44,7 +46,7 @@
 
 ## 开始使用
 
-1. 按[安装说明](docs/INSTALL.md)准备音频环境、模型并构建 App。
+1. 下载版本页的 DMG，按[安装说明](docs/INSTALL.md)将弦外屋拖入“应用程序”。
 2. 导入一首歌，在「原曲」页选择整首或处理片段。
 3. 选择分离方式，在「分离结果」里试听、独奏和组合音轨。
 4. 需要练唱时打开「歌词」；需要跟弹时打开「乐谱」。
@@ -53,7 +55,7 @@
 
 ## 文件与模型
 
-项目、歌词、乐谱和试听状态保存在本机。分离、生成和弦与导出不需要云端 API，也不按歌曲收取接口费用。仓库不附带你的歌曲、分轨、模型权重或 Python 环境；默认模型下载量约 440 MB，音频环境另占空间。
+项目、歌词、乐谱和试听状态保存在本机。分离、生成和弦与导出不需要云端 API，也不按歌曲收取接口费用。源码仓库不附带歌曲、分轨、模型权重或运行环境；Mac 安装包内置运行工具，模型按功能下载，常用功能全部准备后约 355 MB。下载量与存储位置见[安装说明](docs/INSTALL.md)。
 
 模型来源、固定校验值及各组件许可分别记录，项目本身的授权不替代第三方模型的授权。详见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
@@ -63,9 +65,13 @@
 
 - [安装与源码构建](docs/INSTALL.md)
 - [操作说明](docs/USAGE.md)
-- [本机检查](app/macos/测试/README.md)
+- [本机检查](app/macos/测试/README.md) · [验证边界](docs/VERIFICATION.md)
 - [版本记录](CHANGELOG.md)
 - [第三方组件与模型](THIRD_PARTY_NOTICES.md)
 - [问题反馈](https://github.com/AidenXu-1/Xianwaiwu/issues)
 
 提出问题时，请附上 macOS 版本、芯片型号、操作步骤和错误提示。通常无需上传完整歌曲或个人项目资料。
+
+## 代码授权
+
+弦外屋自己的代码采用 [MIT](LICENSE)，允许使用、修改和商用并保留署名。第三方组件、指法数据及模型各自的许可见[第三方声明](THIRD_PARTY_NOTICES.md)。

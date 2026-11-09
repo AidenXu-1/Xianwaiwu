@@ -20,7 +20,7 @@ RATE = 44_100
 SEED = 214
 DEMUCS_QUALITY = {"standard": (1, 0.25), "precise": (2, 0.50)}
 ROOT = Path(__file__).resolve().parent
-CHECKPOINTS = ROOT / "模型"
+CHECKPOINTS = Path(os.environ.get("XIANWAIWU_SEPARATION_WEIGHTS", ROOT / "模型"))
 UVR_INST = "uvr-inst-hq3"
 UVR_KARA = "uvr-kara2"
 BS_KARA = "bs-karaoke-frazer-becruily"
@@ -293,7 +293,7 @@ def write_stems(output_dir, results, ffmpeg):
 
 
 def run(args, device, initial_progress):
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = os.environ.get("SHISHENG_FFMPEG") or shutil.which("ffmpeg")
     if ffmpeg is None:
         raise ValueError("找不到音频读取工具 FFmpeg，请先安装后重试。")
     source = args.input.resolve()
@@ -308,6 +308,14 @@ def run(args, device, initial_progress):
 
     started = time.monotonic()
     manifest = json.loads((ROOT / "模型清单.json").read_text(encoding="utf-8"))
+    if os.environ.get("XIANWAIWU_PACKAGED") == "1":
+        sys.path.insert(0, str(ROOT.parent))
+        from model_store import ensure_files
+        names = ((UVR_INST, BS_KARA, BS_CONFIG) if args.mode == "lead3" else
+                 (UVR_INST, UVR_KARA) if args.mode in ("lead", "backing", "leadback") else
+                 ("htdemucs_6s",) if args.mode == "music6" else (UVR_INST,))
+        ensure_files([manifest[name] for name in names], CHECKPOINTS,
+                     lambda done, total, name: emit("progress", f"首次准备模型 {done / 1e6:.1f}/{total / 1e6:.1f} MB", min(3, int(3 * done / total)), device))
     uvr_runtime = "onnx" if device == "metal" else "onnxruntime"
     if args.mode == "lead3":
         model_names = (UVR_INST, BS_KARA, BS_CONFIG)

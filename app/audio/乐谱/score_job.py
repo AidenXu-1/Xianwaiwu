@@ -15,6 +15,7 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parent
+WEIGHTS = Path(os.environ.get("XIANWAIWU_SCORE_WEIGHTS", ROOT / "weights"))
 sys.path.insert(0, str(ROOT / "vendor"))
 os.environ.setdefault("NUMBA_CACHE_DIR", str(Path(tempfile.gettempdir()) / "xianwaiwu-score-numba"))
 STARTED = time.monotonic()
@@ -71,6 +72,15 @@ def validate_args(args):
 
 def recognize(args):
     global child
+    if os.environ.get("XIANWAIWU_PACKAGED") == "1":
+        sys.path.insert(0, str(ROOT.parent))
+        from model_store import ensure_files
+        import urllib.parse
+        manifest = json.loads((ROOT / "models.json").read_text())
+        records = [{**item, "filename": item["name"],
+                    "url": "https://raw.githubusercontent.com/openmirlab/lv-chordia/" + manifest["revision"] + "/weights/" + urllib.parse.quote(item["name"])} for item in manifest["files"]]
+        ensure_files(records, WEIGHTS, lambda done, total, name:
+                     event("progress", message=f"首次准备乐谱模型 {done / 1e6:.1f}/{total / 1e6:.1f} MB", fraction=0.01 * done / total))
     import numpy as np
     import soundfile as sf
     import librosa
@@ -83,7 +93,7 @@ def recognize(args):
 
     manifest = json.loads((ROOT / "models.json").read_text())
     for item in manifest["files"]:
-        weight = ROOT / "weights" / item["name"]
+        weight = WEIGHTS / item["name"]
         if not weight.is_file() or weight.stat().st_size != item["bytes"] or digest(weight) != item["sha256"]:
             raise ValueError("乐谱模型缺失或校验未通过，请恢复本项目的乐谱模型后再试。")
     event("progress", message="核对原音频", fraction=0.02)

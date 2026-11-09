@@ -30,6 +30,10 @@ struct AudioSource {
 enum Project {
     static let root: URL = {
         if let path = ProcessInfo.processInfo.environment["SHISHENG_ROOT"] { return URL(fileURLWithPath: path) }
+        if let resources = Bundle.main.resourceURL {
+            let runtime = resources.appendingPathComponent("Runtime")
+            if FileManager.default.fileExists(atPath: runtime.appendingPathComponent("runtime.json").path) { return runtime }
+        }
         var candidate = Bundle.main.bundleURL.deletingLastPathComponent()
         for _ in 0..<7 {
             if FileManager.default.fileExists(atPath: candidate.appendingPathComponent("app/audio/引擎/run-engine.command").path) { return candidate }
@@ -44,7 +48,29 @@ enum Project {
     static let source = root.appendingPathComponent("app/macos/源码/audio_job.py")
     static let engine = root.appendingPathComponent("app/audio/引擎")
     static let sample = root.appendingPathComponent("app/audio/样本/原始分轨混音/混音.wav")
-    static let ffmpeg = ProcessInfo.processInfo.environment["SHISHENG_FFMPEG"] ?? "/opt/homebrew/bin/ffmpeg"
+    static let packaged = FileManager.default.fileExists(atPath: root.appendingPathComponent("runtime.json").path)
+    static let python = packaged ? root.appendingPathComponent("Python/bin/python3.11") : engine.appendingPathComponent(".venv/bin/python")
+    static let ffmpeg = ProcessInfo.processInfo.environment["SHISHENG_FFMPEG"]
+        ?? (packaged ? root.appendingPathComponent("bin/ffmpeg").path : "/opt/homebrew/bin/ffmpeg")
+    static var environment: [String: String] {
+        var env = ProcessInfo.processInfo.environment
+        env["PYTHONUNBUFFERED"] = "1"; env["PYTHONDONTWRITEBYTECODE"] = "1"
+        env["SHISHENG_ROOT"] = root.path; env["SHISHENG_PYTHON"] = python.path
+        env["SHISHENG_FFMPEG"] = ffmpeg
+        env["SHISHENG_FFPROBE"] = URL(fileURLWithPath: ffmpeg).deletingLastPathComponent().appendingPathComponent("ffprobe").path
+        if packaged {
+            let models = env["XIANWAIWU_MODEL_DIR"].map { URL(fileURLWithPath: $0) } ?? data.appendingPathComponent("Models")
+            env["XIANWAIWU_PACKAGED"] = "1"
+            env["XIANWAIWU_MODEL_DIR"] = models.path
+            env["XIANWAIWU_SEPARATION_WEIGHTS"] = models.appendingPathComponent("separation").path
+            env["XIANWAIWU_SCORE_WEIGHTS"] = models.appendingPathComponent("score").path
+            env["PYTHONHOME"] = root.appendingPathComponent("Python").path
+            env["PYTHONNOUSERSITE"] = "1"; env.removeValue(forKey: "PYTHONPATH")
+            env["SHISHENG_TOOLS"] = root.appendingPathComponent("bin").path
+            env["PATH"] = root.appendingPathComponent("bin").path + ":/usr/bin:/bin:/usr/sbin:/sbin"
+        } else { env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin" }
+        return env
+    }
 }
 
 /// Owns navigation and tasks; the store owns durable records and the player owns its clock.
@@ -718,8 +744,8 @@ final class Workspace: ObservableObject {
         } catch { sourceIssue = "原音频暂时无法读取：\(error.localizedDescription)" }
     }
     private func launch(_ args: [String], token: UUID) {
-        let proc = Process(); proc.executableURL = URL(fileURLWithPath: "/usr/bin/python3"); proc.arguments = [Project.source.path] + args
-        var env = ProcessInfo.processInfo.environment; env["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"; env["PYTHONUNBUFFERED"] = "1"; env["SHISHENG_FFMPEG"] = Project.ffmpeg; proc.environment = env
+        let proc = Process(); proc.executableURL = Project.python; proc.arguments = [Project.source.path] + args
+        proc.environment = Project.environment
         let pipe = Pipe(); proc.standardOutput = pipe; proc.standardError = pipe
         do { try proc.run() } catch { processing = false; exporting = false; self.error = "无法启动音频引擎：\(error.localizedDescription)"; cleanupTask(); return }
         process = proc; started = ProcessInfo.processInfo.systemUptime
